@@ -52,23 +52,21 @@ public class DBManagerReal implements DBManager {
     public List<Analyze> getAnalysesOn(int taskId) {
         List<Analyze> result = new ArrayList<>();
         try {
-            Connection con = datasource.getConnection();
-            CallableStatement stmt = con.prepareCall("call select_comments_on(?)");
-            stmt.setInt(1, taskId);
-            stmt.execute();
-            
-            ResultSet rsSet =  stmt.getResultSet();
-            while(rsSet.next()){
-                Analyze a = new Analyze();
-                a.setId(rsSet.getInt(1));
-                a.setTaskId(rsSet.getInt(2));
-                a.setUsername(rsSet.getString(3));
-                a.setText(rsSet.getString(4));
-                result.add(a);
-
+            try (Connection con = datasource.getConnection(); CallableStatement stmt = con.prepareCall("call select_comment_for_task(?)")) {
+                stmt.setInt(1, taskId);
+                stmt.execute();
+                
+                ResultSet rsSet =  stmt.getResultSet();
+                while(rsSet.next()){
+                    Analyze a = new Analyze();
+                    a.setId(rsSet.getInt(1));
+                    a.setTaskId(rsSet.getInt(2));
+                    a.setUsername(rsSet.getString(3));
+                    a.setText(rsSet.getString(4));
+                    result.add(a);
+                    
+                }
             }
-            stmt.close();
-            con.close();
         } catch (SQLException ex) {
             Logger.getLogger(DBManagerReal.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -78,15 +76,13 @@ public class DBManagerReal implements DBManager {
     @Override
     public void saveAnalyse(Analyze analyze) {
         try {
-            Connection con = datasource.getConnection();
-            CallableStatement stmt = con.prepareCall("call save_comment(?, ?, ?)");
-            stmt.setInt(1, analyze.getTaskId());
-            stmt.setString(2, analyze.getUsername());
-            stmt.setString(3, analyze.getText());
-            stmt.execute();
-            
-            stmt.close();
-            con.close();
+            try (Connection con = datasource.getConnection(); CallableStatement stmt = con.prepareCall("call save_comment(?, ?, ?)")) {
+                stmt.setInt(1, analyze.getTaskId());
+                stmt.setString(2, analyze.getUsername());
+                stmt.setString(3, analyze.getText());
+                stmt.execute();
+                
+            }
         } catch (SQLException ex) {
             Logger.getLogger(DBManagerReal.class.getName()).log(Level.SEVERE, null, ex);
         }

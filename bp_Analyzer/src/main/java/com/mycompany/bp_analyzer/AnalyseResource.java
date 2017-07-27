@@ -55,12 +55,12 @@ public class AnalyseResource {
     }
 
     /**
-     * PUT method for updating or creating an instance of AnalyseResource
+     * POST method for updating or creating an instance of AnalyseResource
      * @param analize
      * @return 
      */
     @POST
-    @Path("/comment")
+    @Path("/new_comment")
     public Response saveComment(Analyze analize) {
         dbManager.saveAnalyse(analize);
         return Response.status(200).build();
